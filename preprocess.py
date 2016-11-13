@@ -14,9 +14,16 @@ def match_size(imgfile, dim1, dim2):
 
 def image_to_tensor(imgfile):
     im = cv2.imread(imgfile)
-    # This is an np array.
-    # You ML kids should be able to reshape it.
-    print(im)
+    RGB = [np.zeros((len(im), len(im[0]))),
+           np.zeros((len(im), len(im[0]))),
+           np.zeros((len(im), len(im[0])))]
+
+    for i in range(3):
+        for row in range(len(im)):
+            for col in range(len(im[row])):
+                matrix = RGB[i]
+                matrix[row, col] = im[row, col][i]
+    return RGB
 
 if __name__ == "__main__":
-    image_to_tensor(sys.argv[1])
+    print(image_to_tensor(sys.argv[1]))
