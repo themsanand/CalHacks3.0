@@ -34,8 +34,10 @@ def random_frame_from_video(video_path, out_prefix):
     # vidlen comes out as a string hours:minutes:seconds
     # as int:int:float
     total_time = _to_int(vidlen)
-    rand_time = _to_str(random.randint(0, int(total_time)))
+    rand_int_time = random.randint(0, int(total_time))
+    rand_time = _to_str(rand_int_time)
     os.system('ffmpeg -ss {} -i {} -frames:v 1 {}.jpg'.format(rand_time, video_path, out_prefix))
+    return rand_int_time
 
 
 def _to_int(vid_time):
