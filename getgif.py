@@ -44,3 +44,6 @@ def get_clip_from_video(id=None, start=1, end=1, type="gif"):
 	file = urllib.URLopener()
 	file.retrieve(url, "tmp/" + filename)
 	return "tmp/" + filename
+
+
+get_clip_from_video()

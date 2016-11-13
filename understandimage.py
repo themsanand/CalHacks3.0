@@ -4,8 +4,8 @@ from keras.layers import Convolution2D, MaxPooling2D, merge
 from keras.optimizers import SGD
 import numpy
 
-n = 100
-m = 100
+n = 1920
+m = 1080
 first_img = numpy.array([numpy.ones((n, m, 3)), numpy.ones((n, m, 3))])
 second_img = numpy.array([numpy.ones((n, m, 3)), numpy.ones((n, m, 3))])
 same_or_not_labels = numpy.array([1, 1])
@@ -15,39 +15,53 @@ def check_model(n, m, first_img, second_img, same_or_not_labels, time_separation
 	#First pooling
 	pic_1 = Input(shape=(n, m, 3), name='I1')
 	pic_2 = Input(shape=(n, m, 3), name='I2')
-	conv1a0 = Convolution2D(32, 3, 3, border_mode='same')(pic_1)
-	conv2a0 = Convolution2D(32, 3, 3, border_mode='same')(pic_2)
+	conv1a0 = Convolution2D(100, 7, 7, border_mode='same')(pic_1)
+	conv2a0 = Convolution2D(100, 7, 7, border_mode='same')(pic_2)
 	rl1a0 = Activation('relu')(conv1a0)
 	rl2a0 = Activation('relu')(conv2a0)
-	conv1a1 = Convolution2D(32, 3, 3, border_mode='same')(rl1a0)
-	conv2a1 = Convolution2D(32, 3, 3, border_mode='same')(rl2a0)
+	conv1a1 = Convolution2D(100, 3, 3, border_mode='same')(rl1a0)
+	conv2a1 = Convolution2D(100, 3, 3, border_mode='same')(rl2a0)
 	rl1a1 = Activation('relu')(conv1a1)
 	rl2a1 = Activation('relu')(conv2a1)
-	mp1a = MaxPooling2D(pool_size=(2, 2))(rl1a1)
-	mp2a = MaxPooling2D(pool_size=(2, 2))(rl2a1)
+	mp1a = MaxPooling2D(pool_size=(7, 7))(rl1a1)
+	mp2a = MaxPooling2D(pool_size=(7, 7))(rl2a1)
 
 
 	#Second pooling
-	conv1b0 = Convolution2D(32, 3, 3, border_mode='valid')(mp1a)
-	conv2b0 = Convolution2D(32, 3, 3, border_mode='valid')(mp2a)
+	conv1b0 = Convolution2D(100, 5, 5, border_mode='valid')(mp1a)
+	conv2b0 = Convolution2D(100, 5, 5, border_mode='valid')(mp2a)
 	rl1b0 = Activation('relu')(conv1b0)
 	rl2b0 = Activation('relu')(conv2b0)
-	conv1b1 = Convolution2D(32, 3, 3, border_mode='valid')(rl1b0)
-	conv2b1 = Convolution2D(32, 3, 3, border_mode='valid')(rl2b0)
+	conv1b1 = Convolution2D(100, 3, 3, border_mode='valid')(rl1b0)
+	conv2b1 = Convolution2D(100, 3, 3, border_mode='valid')(rl2b0)
 	rl1b1 = Activation('relu')(conv1b1)
 	rl2b1 = Activation('relu')(conv2b1)
-	mp1b = MaxPooling2D(pool_size=(2, 2))(rl1b1)
-	mp2b = MaxPooling2D(pool_size=(2, 2))(rl2b1)
+	mp1b = MaxPooling2D(pool_size=(5, 5))(rl1b1)
+	mp2b = MaxPooling2D(pool_size=(5, 5))(rl2b1)
+
+	#Third pooling
+	conv1c0 = Convolution2D(100, 3, 3, border_mode='valid')(mp1b)
+	conv2c0 = Convolution2D(100, 3, 3, border_mode='valid')(mp2b)
+	rl1c0 = Activation('relu')(conv1c0)
+	rl2c0 = Activation('relu')(conv2c0)
+	conv1c1 = Convolution2D(100, 3, 3, border_mode='valid')(rl1c0)
+	conv2c1 = Convolution2D(100, 3, 3, border_mode='valid')(rl2c0)
+	rl1c1 = Activation('relu')(conv1c1)
+	rl2c1 = Activation('relu')(conv2c1)
+	mp1c = MaxPooling2D(pool_size=(3, 3))(rl1c1)
+	mp2c = MaxPooling2D(pool_size=(3, 3))(rl2c1)
 
 	#Flatten everything
 	mp1bf = Flatten()(mp1b)
 	mp2bf = Flatten()(mp2b)
 	mp1af = Flatten()(mp1a)
 	mp2af = Flatten()(mp2a)
+	mp1cf = Flatten()(mp1c)
+	mp2cf = Flatten()(mp2c)
 
 	#Merge and then create outputs
-	merged_layer = merge([mp1bf, mp2bf, mp1af, mp2af], mode='concat')
-	dense_layer = Dense(500, activation='relu')(merged_layer)
+	merged_layer = merge([mp1bf, mp2bf, mp1cf, mp2cf], mode='concat')
+	dense_layer = Dense(100, activation='relu')(merged_layer)
 	is_same_output = Dense(1, activation='sigmoid', name="O1")(dense_layer)
 	dense_layer_2 = Dense(100, activation='relu')(merged_layer)
 	time_diff_output = Dense(1, activation='linear', name="O2")(dense_layer_2)
@@ -65,9 +79,9 @@ def check_test(model):
 	model.test_on_batch({'I1':first_img, 'I2':second_img}, {'O1':same_or_not_labels, 'O2':time_separation_labels})
 	return model
 
-modl = check_model(n, m, first_img, second_img, same_or_not_labels, time_separation_labels)
-check_fit(modl)
-check_test(modl)
+#modl = check_model(n, m, first_img, second_img, same_or_not_labels, time_separation_labels)
+#check_fit(modl)
+#check_test(modl)
 
 """
 model = Sequential()
