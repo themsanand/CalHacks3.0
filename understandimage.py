@@ -2,9 +2,15 @@ from keras.models import Sequential, Model
 from keras.layers import Dense, Dropout, Activation, Flatten, Input
 from keras.layers import Convolution2D, MaxPooling2D, merge
 from keras.optimizers import SGD
+import numpy
 
 n = 100
 m = 100
+
+first_img = numpy.array([numpy.ones((n, m, 3)), numpy.ones((n, m, 3))])
+second_img = numpy.array([numpy.ones((n, m, 3)), numpy.ones((n, m, 3))])
+same_or_not_labels = numpy.array([1, 1])
+time_separation_labels = numpy.array([5, 20])
 
 #First pooling
 pic_1 = Input(shape=(n, m, 3), name='I1')
@@ -50,7 +56,10 @@ time_diff_output = Dense(1, activation='tanh', name="O2")(dense_layer)
 
 model = Model(input=[pic_1, pic_2], output=[is_same_output, time_diff_output])
 model.compile(optimizer= 'sgd', loss={'O1': 'binary_crossentropy', 'O2': 'mean_squared_error'}, metrics={'O1': 'binary_crossentropy', 'O2': 'mean_squared_error'})
-
+model.fit({'I1': first_img, 'I2': second_img},
+          {'O1': same_or_not_labels, 'O2': time_separation_labels},
+          nb_epoch=1, batch_size=1)
+model.test_on_batch({'I1':first_img, 'I2':second_img}, {'O1':same_or_not_labels, 'O2':time_separation_labels})
 
 """
 model = Sequential()
